@@ -30,8 +30,15 @@ num_requests = 1000000
 successful_requests = 0
 start_time = time.time()
 # create a log file
-log_file = open("log.txt", "w")
-log_file_verbose = open("log_verbose.txt", "w")
+# add timestamp to logfile name
+timestamp = time.strftime("%Y%m%d-%H%M%S")
+log_file = open(f'{timestamp}-log.log', "w")
+log_file_verbose = open(f'{timestamp}-log_verbose.log', "w")
+
+timeout = 0.5
+unsuccesful_requests_in_a_row = 0
+max_unsuccesful_requests_in_a_row = 100
+wait = False
 
 for i in range(1, num_requests + 1):
     # choose random first name, last name, and password
@@ -59,13 +66,17 @@ for i in range(1, num_requests + 1):
             print(f'[{i}] Username: {username}, Password: {password}, Response: {response.text}')
             log_file_verbose.write(f'[{i}] Username: {username}, Password: {password}, Response: {response.text}\n')
             successful_requests += 1
+            timeout -= 0.125
+            unsuccesful_requests_in_a_row = 0
         else: 
             print(f'[{i}] Username: {username}, Password: {password}, Response: {response.text}')
             log_file_verbose.write(f'[{i}] Username: {username}, Password: {password}, Response: {response.text}\n')
             break
     else:
         print(f'[{i}] Username: {username}, Password: {password}, Response: no response')
-        log_file_verbose.write(f'[{i}] Username: {username}, Password: {password}, Response: no response\n')
+        timeout += 0.25
+        unsuccesful_requests_in_a_row += 1
+        log_file_verbose.write(f'[{i}] Username: {username}, Password: {password}, Response: no response, New Timeout = {timeout}\n')
 
     if i % 100 == 0:
         print(f"[{i}] Attempted {i} requests, {successful_requests} successful requests\n[{i}] {time.time() - start_time} seconds elapsed, {successful_requests / (time.time() - start_time)} requests per second")
@@ -74,3 +85,11 @@ for i in range(1, num_requests + 1):
         
     log_file_verbose.flush()
     log_file.flush()
+    if unsuccesful_requests_in_a_row >= max_unsuccesful_requests_in_a_row:
+        print(f"Unsuccesful requests in a row reached {max_unsuccesful_requests_in_a_row}, stopping...")
+        log_file.write(f"Unsuccesful requests in a row reached {max_unsuccesful_requests_in_a_row}, stopping...\n")
+        log_file_verbose.write(f"Unsuccesful requests in a row reached {max_unsuccesful_requests_in_a_row}, stopping...\n")
+        break
+    if wait:
+        time.sleep(timeout)
+
