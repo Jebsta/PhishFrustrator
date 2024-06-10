@@ -7,6 +7,12 @@ import time
 import requests
 
 url = "https://neu-winsim.com/routes/process_login.php"
+timeout = 0.5
+unsuccesful_requests_in_a_row = 0
+max_unsuccesful_requests_in_a_row = 100
+wait = False
+timeout_unsuccesful_requests = 0.25
+timeout_successful_requests = -0.125
 
 # load firstnames from first-names.txt
 firstnames = []
@@ -35,11 +41,6 @@ timestamp = time.strftime("%Y%m%d-%H%M%S")
 log_file = open(f'{timestamp}-log.log', "w")
 log_file_verbose = open(f'{timestamp}-log_verbose.log', "w")
 
-timeout = 0.5
-unsuccesful_requests_in_a_row = 0
-max_unsuccesful_requests_in_a_row = 100
-wait = False
-
 for i in range(1, num_requests + 1):
     # choose random first name, last name, and password
     random_first_name = random.choice(firstnames)
@@ -54,8 +55,15 @@ for i in range(1, num_requests + 1):
         "username": username,
         "password": password
     }
+    try:
+        response = requests.post(url, data=data)
+    except Exception:
+        unsuccesful_requests_in_a_row += 1
+        print(f"[{i}] Unsuccesful requests because of an error. Error will be ignored!")
+        log_file.write(f"[{i}] Unsuccesful requests because of an error. Error will be ignored!\n")
+        log_file_verbose.write(f"[{i}] Unsuccesful requests because of an error. Error will be ignored!\n")
+        continue
 
-    response = requests.post(url, data=data)
     # response.text = {"status":"success","uid":1718029114} (str)
     # i want to get the status part
     if response:
@@ -66,7 +74,7 @@ for i in range(1, num_requests + 1):
             print(f'[{i}] Username: {username}, Password: {password}, Response: {response.text}')
             log_file_verbose.write(f'[{i}] Username: {username}, Password: {password}, Response: {response.text}\n')
             successful_requests += 1
-            timeout -= 0.125
+            timeout += timeout_successful_requests
             unsuccesful_requests_in_a_row = 0
         else: 
             print(f'[{i}] Username: {username}, Password: {password}, Response: {response.text}')
@@ -74,7 +82,7 @@ for i in range(1, num_requests + 1):
             break
     else:
         print(f'[{i}] Username: {username}, Password: {password}, Response: no response')
-        timeout += 0.25
+        timeout += timeout_unsuccesful_requests
         unsuccesful_requests_in_a_row += 1
         log_file_verbose.write(f'[{i}] Username: {username}, Password: {password}, Response: no response, New Timeout = {timeout}\n')
 
