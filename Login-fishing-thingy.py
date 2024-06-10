@@ -57,7 +57,7 @@ for i in range(1, num_requests + 1):
 
     # create username
     username = (random_first_name[0] + "." + random_last_name + str(random.randint(1, 1000))).lower()
-    while len(password) < min_password_length:
+    while len(random_password) < min_password_length:
         random_password = random.choice(passwords)
     password = random_password
 
