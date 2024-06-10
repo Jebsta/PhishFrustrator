@@ -14,6 +14,7 @@ wait = False
 timeout_unsuccesful_requests = 0.25
 timeout_successful_requests = -0.125
 print_verbose = False
+min_password_length = 8
 
 # load firstnames from first-names.txt
 firstnames = []
@@ -56,6 +57,8 @@ for i in range(1, num_requests + 1):
 
     # create username
     username = (random_first_name[0] + "." + random_last_name + str(random.randint(1, 1000))).lower()
+    while len(password) < min_password_length:
+        random_password = random.choice(passwords)
     password = random_password
 
     data = {
