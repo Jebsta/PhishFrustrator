@@ -13,6 +13,7 @@ max_unsuccesful_requests_in_a_row = 100
 wait = False
 timeout_unsuccesful_requests = 0.25
 timeout_successful_requests = -0.125
+print_verbose = False
 
 # load firstnames from first-names.txt
 firstnames = []
@@ -65,7 +66,8 @@ for i in range(1, num_requests + 1):
         response = requests.post(url, data=data)
     except Exception:
         unsuccesful_requests_in_a_row += 1
-        print(f"[{i}] Unsuccesful requests because of an error. Error will be ignored!")
+        if print_verbose:
+            print(f"[{i}] Unsuccesful requests because of an error. Error will be ignored!")
         log_file.write(f"[{i}] Unsuccesful requests because of an error. Error will be ignored!\n")
         log_file_verbose.write(f"[{i}] Unsuccesful requests because of an error. Error will be ignored!\n")
         continue
@@ -77,17 +79,21 @@ for i in range(1, num_requests + 1):
 
         # check if 'status' is 'success'
         if rsp['status'] == 'success':
-            print(f'[{i}] Username: {username}, Password: {password}, Response: {response.text}')
+
+            if print_verbose:
+                print(f'[{i}] Username: {username}, Password: {password}, Response: {response.text}')
             log_file_verbose.write(f'[{i}] Username: {username}, Password: {password}, Response: {response.text}\n')
             successful_requests += 1
             timeout += timeout_successful_requests
             unsuccesful_requests_in_a_row = 0
         else: 
-            print(f'[{i}] Username: {username}, Password: {password}, Response: {response.text}')
+            if print_verbose:
+                print(f'[{i}] Username: {username}, Password: {password}, Response: {response.text}')
             log_file_verbose.write(f'[{i}] Username: {username}, Password: {password}, Response: {response.text}\n')
             break
     else:
-        print(f'[{i}] Username: {username}, Password: {password}, Response: no response')
+        if print_verbose:
+            print(f'[{i}] Username: {username}, Password: {password}, Response: no response')
         timeout += timeout_unsuccesful_requests
         unsuccesful_requests_in_a_row += 1
         log_file_verbose.write(f'[{i}] Username: {username}, Password: {password}, Response: no response, New Timeout = {timeout}\n')
