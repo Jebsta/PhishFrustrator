@@ -41,6 +41,9 @@ timestamp = time.strftime("%Y%m%d-%H%M%S")
 log_file = open(f'{timestamp}-log.log', "w")
 log_file_verbose = open(f'{timestamp}-log_verbose.log', "w")
 
+log_file.write(f'----- Start of Log File -----\n\n')
+log_file_verbose.write(f'----- Start of Log File -----\n\n')
+
 for i in range(1, num_requests + 1):
     # choose random first name, last name, and password
     random_first_name = random.choice(firstnames)
