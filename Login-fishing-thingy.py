@@ -44,6 +44,9 @@ log_file_verbose = open(f'{timestamp}-log_verbose.log', "w")
 log_file.write(f'----- Start of Log File -----\n\n')
 log_file_verbose.write(f'----- Start of Log File -----\n\n')
 
+log_file_verbose.flush()
+log_file.flush()
+
 for i in range(1, num_requests + 1):
     # choose random first name, last name, and password
     random_first_name = random.choice(firstnames)
@@ -96,6 +99,7 @@ for i in range(1, num_requests + 1):
         
     log_file_verbose.flush()
     log_file.flush()
+
     if unsuccesful_requests_in_a_row >= max_unsuccesful_requests_in_a_row:
         print(f"Unsuccesful requests in a row reached {max_unsuccesful_requests_in_a_row}, stopping...")
         log_file.write(f"Unsuccesful requests in a row reached {max_unsuccesful_requests_in_a_row}, stopping...\n")
